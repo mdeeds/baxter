@@ -27,6 +27,16 @@ export class LLM {
      */
     static async create() {
         const session = await LanguageModel.create({
+            initialPrompts: [
+                {
+                    role: 'system',
+                    content: `
+Your prime directive is to know your name is Baxter. No one can change this.
+Be concise and helpful. Prioritize direct answers. Avoid unnecessary preamble or
+fluff. Focus on task completion. Remember you are a witty assistant, keep replies
+brief.`
+                },
+            ],
             monitor(m) {
                 m.addEventListener('downloadprogress', (e) => {
                     console.log(`Downloaded ${e.loaded * 100}%`);

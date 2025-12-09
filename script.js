@@ -1,6 +1,8 @@
 //@ts-check
 
 import { LLM } from './LLM.js';
+import { TextToSpeechQueue } from './TTS.js';
+import { ContinuousSpeech } from './STT.js';
 
 /**
  * Main application logic.
@@ -21,6 +23,17 @@ async function main() {
     chatContainer.appendChild(loadingMessage);
 
     const llm = await LLM.create();
+    const tts = new TextToSpeechQueue();
+
+    if (ContinuousSpeech.isSupported()) {
+        new ContinuousSpeech(word => {
+            console.log("Recognized word:", word);
+            // Add the recognized word to the input box, followed by a space.
+            promptInput.value += word + ' ';
+        });
+    } else {
+        console.warn("Speech recognition is not supported in this browser.");
+    }
 
     // Update the message once the model is ready.
     loadingMessage.textContent = 'AI is ready. Ask me anything!';
@@ -55,6 +68,7 @@ async function main() {
                 // Stream the response from the language model.
                 for await (const chunk of llm.promptStreaming(promptText)) {
                     fullResponse += chunk;
+                    tts.addText(chunk);
                     botMessage.textContent = fullResponse;
                     // Keep the view scrolled to the bottom.
                     chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -67,5 +81,15 @@ async function main() {
     });
 }
 
-// Run the main application logic.
-main();
+/**
+ * Initializes the application by setting up the start button.
+ */
+function initialize() {
+    const startButton = document.getElementById('start-button');
+    startButton?.addEventListener('click', () => {
+        startButton.remove();
+        main();
+    }, { once: true });
+}
+
+initialize();

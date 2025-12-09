@@ -1,7 +1,7 @@
 /**
  * A class to provide continuous speech recognition that restarts on timeout.
  */
-class ContinuousSpeech {
+export class ContinuousSpeech {
   /**
    * @param {function(string): void} onWord - Callback function to be invoked with each recognized word.
    */
@@ -48,16 +48,15 @@ class ContinuousSpeech {
    * @private
    */
   _handleResult(event) {
+    console.log("Speech recognition result:", event);
     const results = event.results;
-    for (let i = this.lastResultIndex; i < results.length; ++i) {
-      const result = results[i];
-      if (result.isFinal) {
-        const transcript = result[0].transcript.trim();
-        const words = transcript.split(/\s+/);
-        words.forEach(word => this.onWord(word));
-      }
+    const result = results[event.resultIndex];
+    if (result.isFinal) {
+      const transcript = result[0].transcript.trim();
+      const words = transcript.split(/\s+/);
+      words.forEach(word => this.onWord(word));
     }
-    this.lastResultIndex = results.length;
+    // this.lastResultIndex = results.length;
   }
 
   /**

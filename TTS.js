@@ -1,24 +1,37 @@
 /**
  * A class to manage and speak a queue of words using the Web Speech API.
  */
-class TextToSpeechQueue {
+export class TextToSpeechQueue {
   /**
    * Constructs an instance of the TextToSpeechQueue.
    */
   constructor() {
     if (!TextToSpeechQueue.isSupported()) {
-      console.error("SpeechSynthesis API is not supported in this browser.");
-      return;
+      throw new Error("SpeechSynthesis API is not supported in this browser.");
     }
 
     this.wordQueue = [];
     this.isSpeaking = false;
+    /** @type {SpeechSynthesisVoice | null} */
+    this.voice = null;
+
+    const setVoice = () => {
+      const voices = window.speechSynthesis.getVoices();
+      console.log("Available TTS voices:", voices);
+      const ziraVoice = voices.find(voice => voice.name.includes('Zira'));
+      if (ziraVoice) {
+        this.voice = ziraVoice;
+        console.log("Set TTS voice to Zira:", ziraVoice);
+        this._speakText('Hello.  My name is Zira.');
+      }
+    };
 
     // The 'voiceschanged' event fires when the list of synthesis voices is ready.
-    window.speechSynthesis.onvoiceschanged = () => {
-      // This can be used to select a specific voice if desired.
-      console.log("Speech synthesis voices loaded.");
-    };
+    window.speechSynthesis.onvoiceschanged = setVoice;
+
+    // The voices may already be loaded on some browsers, so call it directly.
+    // If the list is empty, the 'voiceschanged' event will populate it later.
+    setVoice();
   }
 
   /**
@@ -78,6 +91,11 @@ class TextToSpeechQueue {
   _speakText(text) {
     return new Promise((resolve, reject) => {
       const utterance = new SpeechSynthesisUtterance(text);
+      if (this.voice) {
+        utterance.voice = this.voice;
+        utterance.rate = 1.8;
+        utterance.pitch = 1.05;
+      }
       utterance.onend = () => resolve();
       utterance.onerror = (event) => reject(event);
       window.speechSynthesis.speak(utterance);

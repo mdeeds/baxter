@@ -8,6 +8,10 @@ body {
     color: #333;
 }
 
+.hidden {
+    display: none !important;
+}
+
 #chat-container {
     flex: 1;
     overflow-y: auto;
@@ -53,11 +57,26 @@ footer {
     font-family: inherit;
     resize: none;
     box-sizing: border-box;
-    height: 40px; /* Start with a single line height */
+    height: 40px;
+    /* Start with a single line height */
     transition: height 0.2s ease;
 }
 
 #prompt-input:focus {
     outline: none;
     border-color: #007bff;
+}
+
+#start-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 15px 30px;
+    font-size: 1.5em;
+    cursor: pointer;
+    border-radius: 8px;
+    border: 1px solid #007bff;
+    background-color: #007bff;
+    color: white;
 }
